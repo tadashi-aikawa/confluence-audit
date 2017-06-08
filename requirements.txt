@@ -1,0 +1,4 @@
+owlmixin==2.0.0a4
+requests
+fn
+docopt
