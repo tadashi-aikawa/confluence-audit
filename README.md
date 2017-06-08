@@ -2,11 +2,24 @@
 
 Audit for confluence
 
-# Example
+## Usage
 
-## Precondition (confluence)
+```
+$ confluence_audit --config config.yaml
+```
 
-### Users and groups
+You need to set environmental variables as following.
+
+* USER
+  - Confluence user name
+* PASSWORD
+  - Confluence password
+
+## Example
+
+### Precondition (confluence)
+
+#### Users and groups
 
 * developer (group)
   - developer1
@@ -16,9 +29,9 @@ Audit for confluence
   - tester1
   - tester2
 
-### Spaces and permissions
+#### Spaces and permissions
 
-#### developer-only-space (DEV)
+##### developer-only-space (DEV)
 
 * user
   * tester1 (**invalid!!**)
@@ -26,7 +39,7 @@ Audit for confluence
 * group
   * developer
 
-#### tester-only-space (TEST)
+##### tester-only-space (TEST)
 
 * user
   * tester1
@@ -34,7 +47,7 @@ Audit for confluence
 * group
   * developer (**invalid!!**)
 
-#### public-space (PUBLIC)
+##### public-space (PUBLIC)
 
 * user
   * developer1
@@ -46,7 +59,7 @@ Audit for confluence
   * developer
   * tester (**invalid!!**)
 
-## Create `config.yaml`
+### Create `config.yaml`
 
 ```yaml
 base_url: 'http://your-confluence-path/8090'
@@ -70,22 +83,11 @@ deny:
       - PUBLIC
 ```
 
-## Set environmental variables
 
-* USER
-  - Confluence user name
-* PASSWORD
-  - Confluence password
+### Results
 
-## Usage
-
-```
+``` 
 $ confluence_audit --config config.yaml
-```
-
-then you will get as following...
-
-```
 [
     {
         "group_names": [],
