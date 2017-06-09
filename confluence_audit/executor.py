@@ -15,12 +15,12 @@ from docopt import docopt
 from fn import _
 from owlmixin import TList, TDict
 
-from confluence_audit.apiclient import ApiClient
-from confluence_audit.models import SpacePermission, SpacePermissionItem, Config, Violator, Deny, Args
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(PROJECT_ROOT)
 from confluence_audit import __version__
+from confluence_audit.apiclient import ApiClient
+from confluence_audit.models import SpacePermission, SpacePermissionItem, Config, Violator, Deny, Args
 
 groups_by_member: TDict[TList[str]] = {}
 
