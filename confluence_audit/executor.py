@@ -33,7 +33,7 @@ def find_violator(deny: Deny, violator: Violator) -> Violator:
 
     return Violator.from_dict({
         'user_names': violator.user_names.filter(
-            lambda n: groups_by_member.get(n).any(lambda x: x in deny_joined_groups)
+            lambda n: not groups_by_member.get(n) or groups_by_member.get(n).any(lambda x: x in deny_joined_groups)
         ),
         'group_names': violator.group_names.filter(lambda n: n in deny_groups)
     })
