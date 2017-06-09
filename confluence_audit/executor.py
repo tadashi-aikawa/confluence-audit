@@ -83,7 +83,8 @@ def main():
         .map(lambda k, v: find_violator_by_space(k, v, config.deny)) \
         .filter(lambda x: x.group_names or x.user_names)
 
-    print(violators.to_pretty_json())
+    if violators:
+        sys.exit(violators.to_pretty_json()))
 
 
 if __name__ == '__main__':
