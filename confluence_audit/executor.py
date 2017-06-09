@@ -84,7 +84,7 @@ def main():
         .filter(lambda x: x.group_names or x.user_names)
 
     if violators:
-        sys.exit(violators.to_pretty_json()))
+        sys.exit(violators.to_pretty_json())
 
 
 if __name__ == '__main__':
