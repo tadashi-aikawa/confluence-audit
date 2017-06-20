@@ -35,7 +35,8 @@ def find_violator(deny: Deny, violator: Violator) -> Violator:
         'user_names': violator.user_names.filter(
             lambda n: groups_by_member.get(n) and groups_by_member.get(n).any(lambda x: x in deny_joined_groups)
         ),
-        'group_names': violator.group_names.filter(lambda n: n in deny_groups)
+        'group_names': violator.group_names.filter(lambda n: n in deny_groups),
+        'anonymous': deny.anonymous and violator.anonymous
     })
 
 
@@ -45,10 +46,12 @@ def find_violator_by_space(space: str, overview: Violator,
         .reject(lambda d: space in d.excepts.get_or([])) \
         .map(lambda d: find_violator(d, overview))
 
+    # TODO: Control anonymous by option
     return Violator.from_dict({
         'space': space,
         'user_names': violators.flat_map(_.user_names).uniq(),
-        'group_names': violators.flat_map(_.group_names).uniq()
+        'group_names': violators.flat_map(_.group_names).uniq(),
+        'anonymous': violators.any(_.anonymous)
     })
 
 
@@ -60,6 +63,7 @@ def grouping_by_names(space_permissions: TList[SpacePermission]) -> Violator:
     return Violator.from_dict({
         'user_names': items.map(_.user_name).map(lambda x: x.get()).filter(_).uniq(),
         'group_names': items.map(_.group_name).map(lambda x: x.get()).filter(_).uniq(),
+        'anonymous': items.any(lambda x: x.user_name.is_none() and x.group_name.is_none())
     })
 
 
@@ -81,7 +85,7 @@ def main():
         .group_by(_['key']) \
         .map_values(grouping_by_names) \
         .map(lambda k, v: find_violator_by_space(k, v, config.deny)) \
-        .filter(lambda x: x.group_names or x.user_names)
+        .filter(lambda x: x.group_names or x.user_names or x.anonymous)
 
     if violators:
         sys.exit(violators.to_pretty_json())

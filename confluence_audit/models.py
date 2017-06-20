@@ -24,6 +24,7 @@ class Violator(OwlMixin):
     space: TOption[str]
     user_names: TList[str]
     group_names: TList[str]
+    anonymous: bool
 
 
 class SpacePermissionItem(OwlMixin):
@@ -52,6 +53,7 @@ class Member(OwlMixin):
 
 
 class Deny(OwlMixin):
+    anonymous: TOption[bool]
     group_names: TOption[TList[str]]
     join_group_names: TOption[TList[str]]
     excepts: TOption[TList[str]]

@@ -58,6 +58,7 @@ You need to set environmental variables as following.
 * group
   * developer
   * tester (**invalid!!**)
+* anonymous (**invalid!!**)
 
 ### Create `config.yaml`
 
@@ -90,6 +91,7 @@ deny:
 $ confluence_audit --config config.yaml
 [
     {
+        "anonymous": false,
         "group_names": [],
         "space": "DEV",
         "user_names": [
@@ -98,6 +100,7 @@ $ confluence_audit --config config.yaml
         ]
     },
     {
+        "anonymous": true,
         "group_names": [
             "tester"
         ],
@@ -105,6 +108,7 @@ $ confluence_audit --config config.yaml
         "user_names": []
     },
     {
+        "anonymous": false,
         "group_names": [
             "developer"
         ],
