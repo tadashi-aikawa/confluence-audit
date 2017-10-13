@@ -66,3 +66,5 @@ class Config(OwlMixin):
 
 class Args(OwlMixin):
     config: TOption[str]
+    group: TOption[str]
+    permission_list: bool

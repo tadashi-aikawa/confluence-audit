@@ -3,9 +3,11 @@
 """
 Usage:
   confluence_audit [--config=<yaml>]
+  confluence_audit permission_list --group=<group> [--config=<yaml>]
 
 Options:
   --config = <yaml>          Configuration file
+  --group = <group>          Group name
 """
 
 import os
@@ -14,7 +16,6 @@ from docopt import docopt
 
 from fn import _
 from owlmixin import TList, TDict, TOption
-
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(PROJECT_ROOT)
@@ -88,11 +89,39 @@ def find_violators(args: Args, config: Config) -> TOption[TList[Violator]]:
     return TOption(violators or None)
 
 
+def find_permission_members_by_space(args: Args, config: Config) -> TDict[TOption[TList[str]]]:
+    global groups_by_member
+
+    api = ApiClient(config.base_url, os.environ['USER'], os.environ['PASSWORD'])
+
+    groups_by_member = api.fetch_group() \
+        .flat_map(lambda g: api.fetch_members(g).map(lambda m: {'member': m, 'group': g})) \
+        .group_by(_['member'].username) \
+        .map_values(lambda ds: ds.map(_['group'].name))
+
+    return TDict(
+        api.fetch_spaces() \
+           .map(lambda s: {'key': s.key, 'name': s.name, 'permissions': api.fetch_space_permissions(s.key)}) \
+           .group_by(_['name']) \
+           .map_values(lambda pks: TOption(
+               pks.flat_map(_["permissions"]) \
+                  .flat_map(_.space_permissions) \
+                  .map(lambda p: p.user_name.get()) \
+                  .uniq() \
+                  .filter(lambda n: groups_by_member.get(n, TList()).any(_ == args.group.get())) \
+               or None)
+           )
+    )
+
+
 def main():
     args: Args = Args.from_dict(docopt(__doc__, version=__version__))
     config: Config = Config.from_yamlf(args.config.get_or('./config.yaml'))
 
-    find_violators(args, config).map(lambda r: sys.exit(r.to_pretty_json()))
+    if args.permission_list:
+        print(find_permission_members_by_space(args, config).to_pretty_json())
+    else:
+        find_violators(args, config).map(lambda r: sys.exit(r.to_pretty_json()))
 
 
 if __name__ == '__main__':
