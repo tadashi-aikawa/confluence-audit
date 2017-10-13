@@ -13,7 +13,7 @@ import sys
 from docopt import docopt
 
 from fn import _
-from owlmixin import TList, TDict
+from owlmixin import TList, TDict, TOption
 
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -36,7 +36,7 @@ def find_violator(deny: Deny, violator: Violator) -> Violator:
             lambda n: groups_by_member.get(n) and groups_by_member.get(n).any(lambda x: x in deny_joined_groups)
         ),
         'group_names': violator.group_names.filter(lambda n: n in deny_groups),
-        'anonymous': deny.anonymous and violator.anonymous
+        'anonymous': deny.anonymous.get_or(False) and violator.anonymous
     })
 
 
@@ -67,11 +67,9 @@ def grouping_by_names(space_permissions: TList[SpacePermission]) -> Violator:
     })
 
 
-def main():
+def find_violators(args: Args, config: Config) -> TOption[TList[Violator]]:
     global groups_by_member
 
-    args: Args = Args.from_dict(docopt(__doc__, version=__version__))
-    config: Config = Config.from_yamlf(args.config.get_or('./config.yaml'))
     api = ApiClient(config.base_url, os.environ['USER'], os.environ['PASSWORD'])
 
     groups_by_member = api.fetch_group() \
@@ -84,11 +82,17 @@ def main():
         .map(lambda k: {'key': k, 'permissions': api.fetch_space_permissions(k)}) \
         .group_by(_['key']) \
         .map_values(grouping_by_names) \
-        .map(lambda k, v: find_violator_by_space(k, v, config.deny)) \
+        .map(lambda key, violator: find_violator_by_space(key, violator, config.deny)) \
         .filter(lambda x: x.group_names or x.user_names or x.anonymous)
 
-    if violators:
-        sys.exit(violators.to_pretty_json())
+    return TOption(violators or None)
+
+
+def main():
+    args: Args = Args.from_dict(docopt(__doc__, version=__version__))
+    config: Config = Config.from_yamlf(args.config.get_or('./config.yaml'))
+
+    find_violators(args, config).map(lambda r: sys.exit(r.to_pretty_json()))
 
 
 if __name__ == '__main__':
