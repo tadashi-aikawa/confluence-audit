@@ -5,7 +5,7 @@ Audit for confluence
 ## Usage
 
 ```
-$ confluence_audit --config config.yaml
+$ confluence_audit --config config.yml
 ```
 
 You need to set environmental variables as following.
@@ -60,7 +60,7 @@ You need to set environmental variables as following.
   * tester (**invalid!!**)
 * anonymous (**invalid!!**)
 
-### Create `config.yaml`
+### Create `config.yml`
 
 ```yaml
 base_url: 'http://your-confluence-path/8090'
@@ -88,7 +88,7 @@ deny:
 ### Results
 
 ``` 
-$ confluence_audit --config config.yaml
+$ confluence_audit --config config.yml
 [
     {
         "anonymous": false,

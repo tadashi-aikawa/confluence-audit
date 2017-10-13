@@ -102,3 +102,7 @@ ENV/
 
 # Intellij
 .idea
+
+# config
+config.yml
+
