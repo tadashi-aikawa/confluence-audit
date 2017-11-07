@@ -1,4 +1,4 @@
-owlmixin==2.0.0a11
+owlmixin==2.0.0a12
 requests
 fn
 docopt
