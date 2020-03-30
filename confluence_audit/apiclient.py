@@ -24,9 +24,15 @@ class ApiClient:
                 params={'start': start},
                 auth=self.auth,
                 headers={'content-type': 'application/json'}
-            ).json()
-            yield r['results']
-            res_size = r['size']
+            )
+            if not r.ok:
+               print("*********** Error ***************")
+               print(f"url: {r.url}")
+               print(f"status: {r.status_code}")
+               print(f"response: {r.text}")
+               exit(1)
+            yield r.json()['results']
+            res_size = r.json()['size']
             start += res_size
 
     def __extract_results(self, cls_: Type[T], path: str) -> TList[T]:
